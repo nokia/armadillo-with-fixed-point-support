@@ -458,6 +458,15 @@
 #undef ARMA_PRINT_CXX11_WARNING
 
 
+#if (defined(_OPENMP) && (_OPENMP < 200805))
+  // if the compiler has an ancient version of OpenMP
+  // print a warning to ensure there is no confusion about OpenMP support
+  #if !defined(ARMA_DONT_PRINT_OPENMP_WARNING)
+    #pragma message ("WARNING: use of OpenMP disabled; this compiler doesn't support OpenMP 3.0+")
+  #endif
+#endif
+
+
 #if defined(log2)
   #undef log2
   #pragma message ("WARNING: detected 'log2' macro and undefined it")
