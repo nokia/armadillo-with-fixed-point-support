@@ -2203,7 +2203,7 @@ gmm_diag<eT>::em_fix_params(const eT var_floor)
   
   const eT heft_sum = accu(hefts);
   
-  if(heft_sum != eT(1))  { access::rw(hefts) / heft_sum; }
+  if(heft_sum != eT(1))  { access::rw(hefts) /= heft_sum; }
   }
 
 
