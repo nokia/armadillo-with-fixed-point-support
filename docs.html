@@ -1641,6 +1641,14 @@ F.save("mat_field");
 <br><b>sp_cx_mat</b>
 <ul>
 <li>
+Classes for sparse matrices, with elements stored in <a href="http://en.wikipedia.org/wiki/Sparse_matrix">compressed sparse column (CSC) format</a>
+</li>
+<br>
+<li>
+Intended for large matrices where only a small minority of the elements are non-zero
+</li>
+<br>
+<li>
 The root sparse matrix class is <b>SpMat&lt;</b><i>type</i><b>&gt;</b>, where <i>type</i> is one of:
 <ul>
 <li>
@@ -1648,6 +1656,16 @@ The root sparse matrix class is <b>SpMat&lt;</b><i>type</i><b>&gt;</b>, where <i
 <i>short</i>, <i>int</i>, <i>long</i> and unsigned versions of <i>short</i>, <i>int</i>, <i>long</i>
 </li>
 </ul>
+</li>
+<br>
+<li>
+This class behaves in a similar manner to the <a href="#Mat">Mat</a> class,
+however, member functions which set all elements to non-zero values (and hence do not make sense for sparse matrices) have been deliberately omitted;
+examples of omitted functions: <a href="#fill">.fill()</a>, <a href="#ones_member">.ones()</a>, +=&nbsp;scalar, etc.
+</li>
+<br>
+<li>
+<b>NOTE:</b> incrementally populating SpMat via <a href="#element_access">element access operators</a> is currently inefficient; use <a href="#batch_constructors_sp_mat">batch insertion constructors</a> instead
 </li>
 <br>
 <li>
@@ -1745,21 +1763,7 @@ Constructors:
 </ul>
 <br>
 <li>
-Elements are stored in the  <a href="http://en.wikipedia.org/wiki/Sparse_matrix">compressed sparse column (CSC) format</a>
-</li>
-<br>
-<li>
 All elements are treated as zero by default (ie. the matrix is initialised to contain zeros)
-</li>
-<br>
-<li>
-This class behaves in a similar manner to the <a href="#Mat">Mat</a> class,
-however, member functions which set all elements to non-zero values (and hence do not make sense for sparse matrices) have been deliberately omitted;
-examples of omitted functions: <a href="#fill">.fill()</a>, <a href="#ones_member">.ones()</a>, +=&nbsp;scalar, etc.
-</li>
-<br>
-<li>
-<b>NOTE:</b> using <a href="#element_access">element access operators</a> to set values in <i>sp_mat</i> is very inefficient; use batch insertion constructors instead
 </li>
 <br>
 <li>
@@ -1820,9 +1824,9 @@ If <i>check_for_zeros</i> is set to <i>false</i>, the <i>values</i> vector is as
 <li>
 <b>Caveats:</b>
 <ul>
-<li>support for sparse matrices in this version is <b>preliminary</b>;
-<br>
-the following subset of operations currently works with sparse matrices:
+<li>support for sparse matrices in this version is <b>preliminary</b></li>
+<li>using <a href="#element_access">element access operators</a> to incrementally construct a sparse matrix is currently inefficient; use <a href="#batch_constructors_sp_mat">batch insertion constructors</a> instead</li>
+<li>the following subset of operations currently works with sparse matrices:
 <ul>
 <li>fundamental arithmetic <a href="#operators">operations</a> (such as addition and multiplication)</li>
 <li><a href="#submat">submatrix views</a> (contiguous forms only)</li>
