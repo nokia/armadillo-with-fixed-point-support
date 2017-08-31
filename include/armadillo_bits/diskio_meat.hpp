@@ -2294,8 +2294,6 @@ diskio::save_coord_ascii(const SpMat<eT>& x, std::ostream& f)
   
   for(; iter != iter_end; ++iter)
     {
-    f.setf(ios::fixed);
-    
     f << iter.row() << ' ' << iter.col() << ' ';
     
     if( (is_float<eT>::value) || (is_double<eT>::value) )
@@ -2316,8 +2314,6 @@ diskio::save_coord_ascii(const SpMat<eT>& x, std::ostream& f)
     
     if( x.at(max_row, max_col) == eT(0) )
       {
-      f.setf(ios::fixed);
-      
       f << max_row << ' ' << max_col << " 0\n";
       }
     }
@@ -2348,8 +2344,6 @@ diskio::save_coord_ascii(const SpMat< std::complex<T> >& x, std::ostream& f)
   
   for(; iter != iter_end; ++iter)
     {
-    f.setf(ios::fixed);
-    
     f << iter.row() << ' ' << iter.col() << ' ';
     
     if( (is_float<T>::value) || (is_double<T>::value) )
@@ -2371,8 +2365,6 @@ diskio::save_coord_ascii(const SpMat< std::complex<T> >& x, std::ostream& f)
     
     if( x.at(max_row, max_col) == eT(0) )
       {
-      f.setf(ios::fixed);
-      
       f << max_row << ' ' << max_col << " 0 0\n";
       }
     }
