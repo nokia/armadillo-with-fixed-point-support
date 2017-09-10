@@ -717,7 +717,7 @@ gmm_diag<eT>::learn
     
     reset(X.n_rows, N_gaus);
     
-    if(print_mode)  { get_stream_err2() << "gmm_diag::learn(): generating initial means\n"; }
+    if(print_mode)  { get_stream_err2() << "gmm_diag::learn(): generating initial means\n"; get_stream_err2().flush(); }
     
          if(dist_mode == eucl_dist)  { generate_initial_means<1>(X, seed_mode); }
     else if(dist_mode == maha_dist)  { generate_initial_means<2>(X, seed_mode); }
@@ -747,7 +747,7 @@ gmm_diag<eT>::learn
   
   if(seed_mode != keep_existing)
     {
-    if(print_mode)  { get_stream_err2() << "gmm_diag::learn(): generating initial covariances\n"; }
+    if(print_mode)  { get_stream_err2() << "gmm_diag::learn(): generating initial covariances\n"; get_stream_err2().flush(); }
     
          if(dist_mode == eucl_dist)  { generate_initial_dcovs_and_hefts<1>(X, vfloor); }
     else if(dist_mode == maha_dist)  { generate_initial_dcovs_and_hefts<2>(X, vfloor); }
@@ -941,11 +941,9 @@ gmm_diag<eT>::internal_gen_boundaries(const uword N) const
   arma_extra_debug_sigprint();
   
   #if (defined(_OPENMP) && (_OPENMP >= 200805))
-    // const uword n_cores = 0;
-    const uword n_cores   = uword(omp_get_num_procs());
-    const uword n_threads = (n_cores > 0) ? ( (n_cores <= N) ? n_cores : 1 ) : 1;
+    const uword n_threads_avail = (omp_in_parallel()) ? uword(1) : uword(omp_get_max_threads());
+    const uword n_threads       = (n_threads_avail > 0) ? ( (n_threads_avail <= N) ? n_threads_avail : 1 ) : 1;
   #else
-    // static const uword n_cores   = 0;
     static const uword n_threads = 1;
   #endif
   
@@ -1698,11 +1696,17 @@ gmm_diag<eT>::km_iterate(const Mat<eT>& X, const uword max_iter, const bool verb
     
     Col<eT> tmp_mean(N_dims);
     
-    if(verbose)
-      {
-      get_stream_err2() << signature << ": n_threads: " << n_threads  << '\n';
-      }
+  #else
+    
+    const uword n_threads = 1;
+    
   #endif
+  
+  
+  if(verbose)
+    {
+    get_stream_err2() << signature << ": n_threads: " << n_threads  << '\n';
+    }
   
   
   for(uword iter=1; iter <= max_iter; ++iter)
@@ -1861,6 +1865,7 @@ gmm_diag<eT>::km_iterate(const Mat<eT>& X, const uword max_iter, const bool verb
       get_stream_err2().unsetf(ios::fixed);
       //get_stream_err2().setf(ios::scientific);
       get_stream_err2() << rs_delta.mean() << '\n';
+      get_stream_err2().flush();
       }
     
     arma::swap(old_means, new_means);
@@ -1966,12 +1971,10 @@ gmm_diag<eT>::em_iterate(const Mat<eT>& X, const uword max_iter, const eT var_fl
     }
   
   
-  #if (defined(_OPENMP) && (_OPENMP >= 200805))
-    if(verbose)
-      {
-      get_stream_err2() << "gmm_diag::learn(): EM: n_threads: " << n_threads  << '\n';
-      }
-  #endif
+  if(verbose)
+    {
+    get_stream_err2() << "gmm_diag::learn(): EM: n_threads: " << n_threads  << '\n';
+    }
   
   eT old_avg_log_p = -Datum<eT>::inf;
   
@@ -1996,6 +1999,7 @@ gmm_diag<eT>::em_iterate(const Mat<eT>& X, const uword max_iter, const eT var_fl
       get_stream_err2().unsetf(ios::fixed);
       //get_stream_err2().setf(ios::scientific);
       get_stream_err2() << new_avg_log_p << '\n';
+      get_stream_err2().flush();
       }
     
     if(is_finite(new_avg_log_p) == false)  { return false; }
