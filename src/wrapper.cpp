@@ -28,6 +28,11 @@
 
 #include "armadillo_bits/compiler_setup.hpp"
 #include "armadillo_bits/typedef_elem.hpp"
+
+#if defined(ARMA_USE_FIXED_POINT)
+  #include "armadillo_bits/fixed_point.hpp"
+#endif
+
 #include "armadillo_bits/include_atlas.hpp"
 #include "armadillo_bits/include_superlu.hpp"
 

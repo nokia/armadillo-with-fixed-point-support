@@ -67,19 +67,33 @@
 
 
 #if defined(ARMA_USE_CXX11)
-  
+
   #undef  ARMA_USE_U64S64
   #define ARMA_USE_U64S64
-  
+
+  #undef  ARMA_USE_U64S64_FIXED_POINT
+  #define ARMA_USE_U64S64_FIXED_POINT
+
   #if !defined(ARMA_32BIT_WORD)
     #undef  ARMA_64BIT_WORD
     #define ARMA_64BIT_WORD
+
+    #undef  ARMA_64BIT_WORD_FIXED_POINT
+    #define ARMA_64BIT_WORD_FIXED_POINT
   #endif
-  
-  #if defined(ARMA_64BIT_WORD) && defined(SIZE_MAX)
+
+  #if (defined(ARMA_64BIT_WORD) || defined (ARMA_64BIT_WORD_FIXED_POINT)) && defined(SIZE_MAX)
     #if (SIZE_MAX < 0xFFFFFFFFFFFFFFFFull)
       // #pragma message ("WARNING: disabled use of 64 bit integers, as std::size_t is smaller than 64 bits")
-      #undef ARMA_64BIT_WORD
+
+      #if defined(ARMA_64BIT_WORD)
+        #undef ARMA_64BIT_WORD
+      #endif
+
+      #if defined(ARMA_64BIT_WORD_FIXED_POINT)
+        #undef ARMA_64BIT_WORD_FIXED_POIN
+      #endif
+
     #endif
   #endif
   
@@ -91,6 +105,20 @@
   #define ARMA_USE_U64S64
 #endif
 
+
+#if defined(ARMA_64BIT_WORD_FIXED_POINT)
+    #undef  ARMA_USE_U64S64_FIXED_POINT
+    #define ARMA_USE_U64S64_FIXED_POINT
+#endif
+
+#if (defined(ARMA_128BIT_WORD) && !defined (__SIZEOF_INT128__))
+  #undef ARMA_128BIT_WORD
+#endif
+
+#if defined(ARMA_128BIT_WORD)
+ #undef  ARMA_USE_U128S128
+ #define ARMA_USE_U128S128
+#endif
 
 // most compilers can't vectorise slightly elaborate loops;
 // for example clang: http://llvm.org/bugs/show_bug.cgi?id=16358

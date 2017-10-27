@@ -100,6 +100,11 @@ namespace arma
   #include "armadillo_bits/arma_forward.hpp"
   #include "armadillo_bits/arma_static_check.hpp"
   #include "armadillo_bits/typedef_elem.hpp"
+
+  #if defined(ARMA_USE_FIXED_POINT)
+    #include "armadillo_bits/fixed_point.hpp"
+  #endif
+
   #include "armadillo_bits/typedef_elem_check.hpp"
   #include "armadillo_bits/typedef_mat.hpp"
   #include "armadillo_bits/arma_str.hpp"

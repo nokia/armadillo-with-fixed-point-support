@@ -105,6 +105,25 @@
 //// Note that ARMA_64BIT_WORD is automatically enabled when a C++11 compiler is detected.
 #endif
 
+#if !defined(ARMA_USE_FIXED_POINT)
+   //#define ARMA_USE_FIXED_POINT
+ //// Uncomment the above line if you want to enable using fixed point
+#endif
+
+#if !defined(ARMA_64BIT_WORD_FIXED_POINT)
+ #define ARMA_64BIT_WORD_FIXED_POINT
+//// Uncomment the above line if you require matrices/vectors capable of holding more than 4 billion elements.
+//// Your machine and compiler must have support for 64 bit integers (eg. via "long" or "long long")
+//// Note that ARMA_64BIT_WORD_FIXED_POINT is automatically enabled when a C++11 compiler is detected
+//// The difference with ARMA_64BIT_WORD is to allow using 64bits types only for fixed point not all armadillo
+#endif
+
+#if !defined(ARMA_128BIT_WORD)
+ #define ARMA_128BIT_WORD
+ //// Uncomment the above line if you use 128 bit integers
+ ///  Your machine and compiler must have support for 128 bit integers (eg. via "__int128")
+#endif
+
 #if !defined(ARMA_USE_HDF5)
 // #define ARMA_USE_HDF5
 //// Uncomment the above line to allow the ability to save and load matrices stored in HDF5 format;
