@@ -60,7 +60,7 @@
 #endif
 
 
-#if defined(ARMA_USE_U64S64)
+#if (defined(ARMA_USE_U64S64) || defined(ARMA_USE_U64S64_FIXED_POINT))
   #if   ULLONG_MAX >= 0xffffffffffffffff
     typedef unsigned long long u64;
     typedef          long long s64;
