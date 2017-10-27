@@ -122,6 +122,14 @@ typedef          long slng_t;
 typedef std::complex<float>  cx_float;
 typedef std::complex<double> cx_double;
 
+template<typename T, u16 P>
+class FP;
+
+template<typename BT, u16 P>
+struct cx_fp {
+	typedef std::complex<FP<BT, P> > type;
+};
+
 typedef void* void_ptr;
 
 
