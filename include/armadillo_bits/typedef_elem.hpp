@@ -85,6 +85,10 @@
 typedef unsigned long ulng_t;
 typedef          long slng_t;
 
+#if defined(ARMA_USE_U128S128)
+    typedef unsigned __int128   u128;
+    typedef          __int128   s128;
+#endif
 
 #if defined(ARMA_64BIT_WORD)
   typedef u64 uword;
