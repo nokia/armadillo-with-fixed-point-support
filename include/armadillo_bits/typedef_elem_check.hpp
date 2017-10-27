@@ -34,11 +34,16 @@ namespace junk
     arma_static_check( (sizeof(u32) != 4), ERROR___TYPE_U32_HAS_UNSUPPORTED_SIZE );
     arma_static_check( (sizeof(s32) != 4), ERROR___TYPE_S32_HAS_UNSUPPORTED_SIZE );
     
-    #if defined(ARMA_USE_U64S64)
+    #if (defined(ARMA_USE_U64S64) || defined(ARMA_USE_U64S64_FIXED_POINT))
       arma_static_check( (sizeof(u64) != 8), ERROR___TYPE_U64_HAS_UNSUPPORTED_SIZE );
       arma_static_check( (sizeof(s64) != 8), ERROR___TYPE_S64_HAS_UNSUPPORTED_SIZE );
     #endif
-    
+
+    #if defined(ARMA_USE_U128S128)
+      arma_static_check( (sizeof(u128)  != 16), ERROR___TYPE_U128_HAS_UNSUPPORTED_SIZE );
+      arma_static_check( (sizeof(s128)  != 16), ERROR___TYPE_S128_HAS_UNSUPPORTED_SIZE );
+    #endif    
+
     arma_static_check( (sizeof(float)  != 4), ERROR___TYPE_FLOAT_HAS_UNSUPPORTED_SIZE );
     arma_static_check( (sizeof(double) != 8), ERROR___TYPE_DOUBLE_HAS_UNSUPPORTED_SIZE );
     
