@@ -63,6 +63,58 @@ op_dot::direct_dot_arma(const uword n_elem, const eT* const A, const eT* const B
   }
 
 
+//! for two arrays, generic version for non-complex values
+template<typename BT, u16 P>
+arma_hot
+arma_inline
+typename arma_not_cx<FP<BT, P> >::result
+op_dot::direct_dot_arma(const uword n_elem, const FP<BT, P>* const A, const FP<BT, P>* const B)
+  {
+  arma_extra_debug_sigprint();
+  typedef FP<BT, P> eT;
+  typedef typename eT::T1 T1;
+
+  #if defined(__FINITE_MATH_ONLY__) && (__FINITE_MATH_ONLY__ > 0)
+    {
+    T1 val = T1(0);
+
+    for(uword i=0; i<n_elem; ++i)
+      {
+      val += static_cast<T1>(A[i].getIntValue()) * static_cast<T1>(B[i].getIntValue());
+      }
+
+    eT fp;
+    fp.setIntValue((val >> P));
+
+    return fp;
+    }
+  #else
+    {
+
+    T1 val1 = T1(0);
+    T1 val2 = T1(0);
+    uword i, j;
+
+    for(i=0, j=1; j<n_elem; i+=2, j+=2)
+      {
+      val1 += static_cast<T1>(A[i].getIntValue()) * static_cast<T1>(B[i].getIntValue());
+      val2 += static_cast<T1>(A[j].getIntValue()) * static_cast<T1>(B[j].getIntValue());
+      }
+
+    if(i < n_elem)
+      {
+      val1 += static_cast<T1>(A[i].getIntValue()) * static_cast<T1>(B[i].getIntValue());
+      }
+
+    eT fp;
+    fp.setIntValue((val1 + val2) >> P);
+
+    return fp;
+    }
+  #endif
+  }
+
+
 
 //! for two arrays, generic version for complex values
 template<typename eT>
