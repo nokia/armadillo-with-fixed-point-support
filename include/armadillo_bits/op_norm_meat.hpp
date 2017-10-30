@@ -755,7 +755,7 @@ op_norm::vec_norm_max(const Proxy<T1>& P)
   
   const uword N = P.get_n_elem();
   
-  T max_val = (N != 1) ? priv::most_neg<T>() : std::abs(P[0]);
+  T max_val = (N != 1) ? priv::most_neg<T>() : static_cast<T>(std::abs(P[0]));
   
   if(Proxy<T1>::use_at == false)
     {
@@ -821,7 +821,7 @@ op_norm::vec_norm_min(const Proxy<T1>& P)
   
   const uword N = P.get_n_elem();
   
-  T min_val = (N != 1) ? priv::most_pos<T>() : std::abs(P[0]);
+  T min_val = (N != 1) ? priv::most_pos<T>() : static_cast<T>(std::abs(P[0]));
   
   if(Proxy<T1>::use_at == false)
     {
