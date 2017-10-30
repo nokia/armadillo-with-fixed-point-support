@@ -96,9 +96,12 @@ op_inv::apply_diagmat(Mat<typename T1::elem_type>& out, const T1& X)
       {
       const eT val = A[i];
       
-      out.at(i,i) = eT(1) / val;
+      if((!is_fp<eT>::value && !is_complex_fp<eT>::value) || !auxlib::is_null(val))
+        {
+        out.at(i,i) = eT(1) / val;
+        }
       
-      if(val == eT(0))  { status = false; }
+      if(auxlib::is_null(val))  { status = false; }
       }
     }
   else
@@ -109,9 +112,12 @@ op_inv::apply_diagmat(Mat<typename T1::elem_type>& out, const T1& X)
       {
       const eT val = A[i];
       
-      tmp.at(i,i) = eT(1) / val;
+      if((!is_fp<eT>::value && !is_complex_fp<eT>::value) || !auxlib::is_null(val))
+        {
+        tmp.at(i,i) = eT(1) / val;
+        }
       
-      if(val == eT(0))  { status = false; }
+      if(auxlib::is_null(val))  { status = false; }
       }
     
     out.steal_mem(tmp);

@@ -130,7 +130,7 @@ det
   
   const eT tmp = det(X.m);
   
-  if(tmp == eT(0))  { arma_debug_warn("det(): denominator is zero" ); }
+  if(auxlib::is_null(tmp))  { arma_debug_warn("det(): denominator is zero" ); }
   
   return eT(1) / tmp;
   }
