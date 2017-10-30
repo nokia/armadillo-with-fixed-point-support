@@ -900,6 +900,24 @@ struct is_s32<s32>
     { static const bool value = true; };
 #endif
 
+#if defined(ARMA_USE_U128S128)
+  template<typename T1>
+  struct is_u128
+    { static const bool value = false; };
+
+  template<>
+  struct is_u128<u128>
+    { static const bool value = true; };
+
+
+  template<typename T1>
+  struct is_s128
+    { static const bool value = false; };
+
+  template<>
+  struct is_s128<s128>
+    { static const bool value = true; };
+#endif
 
 
 template<typename T1>
@@ -1000,7 +1018,13 @@ template<>
 struct is_double<double>
   { static const bool value = true; };
 
+template<typename T1>
+struct is_fp
+  { static const bool value = false; };
 
+template<typename BT, u16 P>
+struct is_fp<FP<BT, P> >
+  { static const bool value = true; };
 
 template<typename T1>
 struct is_real
@@ -1056,7 +1080,13 @@ template<>
 struct is_complex_double< std::complex<double> >
   { static const bool value = true; };
 
+template<typename T1>
+struct is_complex_fp
+  { static const bool value = false; };
 
+template<typename BT, u16 P>
+struct is_complex_fp< std::complex<FP<BT, P> > >
+  { static const bool value = true; };
 
 template<typename T1>
 struct is_complex_strict
@@ -1070,7 +1100,9 @@ template<>
 struct is_complex_strict< std::complex<double> >
   { static const bool value = true; };
 
-
+template<typename BT, u16 P>
+struct is_complex_strict< std::complex<FP<BT, P> > >
+  { static const bool value = true; };
 
 template<typename T1>
 struct is_cx
@@ -1121,7 +1153,14 @@ template<>
 struct is_supported_complex_double< std::complex<double> >
   { static const bool value = ( sizeof(std::complex<double>) == 2*sizeof(double) ); };
 
+template<typename T1>
+struct is_supported_complex_fp
+  { static const bool value = false; };
 
+
+template<typename BT, u16 P>
+struct is_supported_complex_fp< std::complex<FP<BT, P> > >
+  { static const bool value = ( sizeof(std::complex<FP<BT, P> >) == 2*sizeof(FP<BT, P>) );};
 
 template<typename T1>
 struct is_supported_elem_type
@@ -1137,6 +1176,10 @@ struct is_supported_elem_type
     is_u64<T1>::value ||
     is_s64<T1>::value ||
 #endif
+#if defined(ARMA_USE_U128S128)
+    is_u128<T1>::value ||
+    is_s128<T1>::value ||
+#endif
 #if defined(ARMA_ALLOW_LONG)
     is_ulng_t<T1>::value ||
     is_slng_t<T1>::value ||
@@ -1144,7 +1187,9 @@ struct is_supported_elem_type
     is_float<T1>::value ||
     is_double<T1>::value ||
     is_supported_complex_float<T1>::value ||
-    is_supported_complex_double<T1>::value;
+    is_supported_complex_double<T1>::value ||
+    is_fp<T1>::value ||
+    is_supported_complex_fp<T1>::value;
   };
 
 
@@ -1156,7 +1201,9 @@ struct is_supported_blas_type
     is_float<T1>::value ||
     is_double<T1>::value ||
     is_supported_complex_float<T1>::value ||
-    is_supported_complex_double<T1>::value;
+    is_supported_complex_double<T1>::value ||
+    is_fp<T1>::value ||
+    is_supported_complex_fp<T1>::value;    
   };
 
 
@@ -1178,6 +1225,15 @@ template<> struct is_signed<u64>    { static const bool value = false; };
 template<> struct is_signed<ulng_t> { static const bool value = false; };
 #endif
 
+template<u16 P> struct is_signed<FP<u8, P> >     { static const bool value = false; };
+template<u16 P> struct is_signed<FP<u16, P> >    { static const bool value = false; };
+template<u16 P> struct is_signed<FP<u32, P> >    { static const bool value = false; };
+#if defined(ARMA_USE_U64S64)
+template<u16 P> struct is_signed<FP<u64, P> >    { static const bool value = false; };
+#endif
+#if defined(ARMA_USE_U128S128)
+template<u16 P> struct is_signed<FP<u128, P> >    { static const bool value = false; };
+#endif
 
 template<typename T>
 struct is_non_integral
@@ -1190,6 +1246,8 @@ template<> struct is_non_integral<              float   > { static const bool va
 template<> struct is_non_integral<              double  > { static const bool value = true; };
 template<> struct is_non_integral< std::complex<float>  > { static const bool value = true; };
 template<> struct is_non_integral< std::complex<double> > { static const bool value = true; };
+template<typename BT, u16 P> struct is_non_integral<FP<BT, P> > { static const bool value = true; };
+template<typename BT, u16 P> struct is_non_integral< std::complex< FP<BT, P> > > { static const bool value = true; };
 
 
 
