@@ -19,6 +19,65 @@
 
 
 
+//! Matrix inverse for fixed point
+template<typename eT>
+inline
+Mat<eT>
+auxlib::schurInv(const Mat<eT>& in, const Mat<eT>& invA, uword size, bool &status){
+
+    uword invASize = invA.n_cols;
+    Mat<eT> B = in.submat(0, invASize, invASize-1, size-1);
+    Mat<eT> C = in.submat(invASize, 0, size-1, invASize-1);
+    Mat<eT> D = in.submat(invASize, invASize, size-1, size-1);
+
+    Mat<eT> invAB = invA * B;
+    Mat<eT> S = D - C * invAB;
+    Mat<eT> invIn(size, size);
+    status = inverse_inplace(S);
+
+    if(status){
+        Mat<eT> invABS = invAB * S;
+        Mat<eT> CinvA = C * invA;
+
+        invIn.submat(0, 0, invASize-1, invASize-1) = invA + invABS * CinvA;
+        invIn.submat(0, invASize, invASize-1, size-1) = -invABS;
+        invIn.submat(invASize, 0, size-1, invASize-1) = -S * CinvA;
+        invIn.submat(invASize, invASize, size-1, size-1) = S;
+    }
+    return invIn;
+}
+
+template<typename eT>
+inline
+bool
+auxlib::inverse_inplace(Mat<eT> &in){
+    bool status = true;
+    if (in.n_cols <= 4){
+        const uword N = in.n_rows;
+        Mat<eT> tmp(N,N);
+        status = auxlib::inv_noalias_tinymat(tmp, in, N);
+        if(status){
+            arrayops::copy( in.memptr(), tmp.memptr(), tmp.n_elem );
+        }
+    }
+    else{
+        Mat<eT> invSubA = in.submat(0,0,3,3);
+        status = inverse_inplace(invSubA);
+        if (status){
+            for (uword iter = 8; iter<=in.n_cols && status; iter+=4) {
+                invSubA = schurInv(in, invSubA, iter, status);
+            }
+
+            if ((in.n_cols%4) != 0 && status)
+                invSubA = schurInv(in, invSubA, in.n_cols, status);
+            if(status)
+            arrayops::copy( in.memptr(), invSubA.memptr(), invSubA.n_elem );
+        }
+    }
+
+    return status;
+}
+
 //! matrix inverse
 template<typename eT, typename T1>
 inline
@@ -31,6 +90,10 @@ auxlib::inv(Mat<eT>& out, const Base<eT,T1>& X)
   
   arma_debug_check( (out.is_square() == false), "inv(): given matrix must be square sized" );
   
+  if(is_fp<eT>::value || is_complex_fp<eT>::value){
+      return auxlib::inverse_inplace(out);
+  }
+
   const uword N = out.n_rows;
   
   if(N <= 4)
@@ -61,6 +124,11 @@ auxlib::inv(Mat<eT>& out, const Mat<eT>& X)
   
   arma_debug_check( (X.is_square() == false), "inv(): given matrix must be square sized" );
   
+  if(is_fp<eT>::value || is_complex_fp<eT>::value){
+        out = X;
+        return auxlib::inverse_inplace(out);
+  }
+
   const uword N = X.n_rows;
   
   if(N <= 4)
@@ -93,7 +161,51 @@ auxlib::inv(Mat<eT>& out, const Mat<eT>& X)
   return auxlib::inv_inplace_lapack(out);
   }
 
+template <typename eT>
+inline
+bool
+auxlib::inv_check_det_val(eT det, const eT det_min){
 
+    if(is_fp<eT>::value)
+        return(det != eT(0));
+
+    return(std::abs(det) >= det_min);
+}
+
+template <typename eT >
+inline
+bool
+auxlib::inv_check_det_val(std::complex<eT> det, const eT det_min){
+
+    if(is_fp<eT>::value){
+        /* This check is to avoid division by zero in case complex numbers.
+         because Y(a,b)/ det(c, d) = Z(ac + bd)/(c² + d²), (bc-ad)/(c²+d²))
+         if c²+d² is really small, the corresponding fixed point number will
+         become zero which leads to div by zero
+         Example: case fixed64_23(0.000000000000021) gives fixed point number eqaul to zero
+        */
+        return(eT(det.real() * det.real() + det.imag() * det.imag()) != eT(0));
+    }
+
+    return(std::abs(det) >= det_min);
+}
+
+template <typename eT >
+inline
+bool
+auxlib::is_null(eT val){
+    return (val == eT(0));
+}
+
+template <typename eT >
+inline
+bool
+auxlib::is_null(std::complex<eT> val){
+    if(is_fp<eT>::value){
+        return(eT(val.real() * val.real() + val.imag() * val.imag()) == eT(0));
+    }
+    return (val.real() == eT(0) && val.imag() == eT(0));
+}
 
 template<typename eT>
 inline
@@ -115,9 +227,12 @@ auxlib::inv_noalias_tinymat(Mat<eT>& out, const Mat<eT>& X, const uword N)
     {
     case 1:
       {
-      outm[0] = eT(1) / Xm[0];
+      if((!is_fp<eT>::value && !is_complex_fp<eT>::value) || !auxlib::is_null(Xm[0]))
+        {
+        outm[0] = eT(1) / Xm[0];
       
-      calc_ok = true;
+        calc_ok = true;
+        }
       };
       break;
       
@@ -130,7 +245,7 @@ auxlib::inv_noalias_tinymat(Mat<eT>& out, const Mat<eT>& X, const uword N)
       
       const eT det_val = (a*d - b*c);
       
-      if(std::abs(det_val) >= det_min)
+      if(inv_check_det_val(det_val, det_min))
         {
         outm[pos<0,0>::n2] =  d / det_val;
         outm[pos<0,1>::n2] = -b / det_val;
@@ -146,7 +261,7 @@ auxlib::inv_noalias_tinymat(Mat<eT>& out, const Mat<eT>& X, const uword N)
       {
       const eT det_val = auxlib::det_tinymat(X,3);
       
-      if(std::abs(det_val) >= det_min)
+      if(inv_check_det_val(det_val, det_min))
         {
         outm[pos<0,0>::n3] =  (Xm[pos<2,2>::n3]*Xm[pos<1,1>::n3] - Xm[pos<2,1>::n3]*Xm[pos<1,2>::n3]) / det_val;
         outm[pos<1,0>::n3] = -(Xm[pos<2,2>::n3]*Xm[pos<1,0>::n3] - Xm[pos<2,0>::n3]*Xm[pos<1,2>::n3]) / det_val;
@@ -162,7 +277,7 @@ auxlib::inv_noalias_tinymat(Mat<eT>& out, const Mat<eT>& X, const uword N)
         
         const eT check_val = Xm[pos<0,0>::n3]*outm[pos<0,0>::n3] + Xm[pos<0,1>::n3]*outm[pos<1,0>::n3] + Xm[pos<0,2>::n3]*outm[pos<2,0>::n3];
         
-        const  T max_diff  = (is_float<T>::value) ? T(1e-4) : T(1e-10);  // empirically determined; may need tuning
+        const  T max_diff  = (is_float<T>::value || is_fp<T>::value) ? T(1e-4) : T(1e-10);  // empirically determined; may need tuning
         
         if(std::abs(T(1) - check_val) < max_diff)
           {
@@ -176,7 +291,7 @@ auxlib::inv_noalias_tinymat(Mat<eT>& out, const Mat<eT>& X, const uword N)
       {
       const eT det_val = auxlib::det_tinymat(X,4);
       
-      if(std::abs(det_val) >= det_min)
+      if(inv_check_det_val(det_val, det_min))
         {
         outm[pos<0,0>::n4] = ( Xm[pos<1,2>::n4]*Xm[pos<2,3>::n4]*Xm[pos<3,1>::n4] - Xm[pos<1,3>::n4]*Xm[pos<2,2>::n4]*Xm[pos<3,1>::n4] + Xm[pos<1,3>::n4]*Xm[pos<2,1>::n4]*Xm[pos<3,2>::n4] - Xm[pos<1,1>::n4]*Xm[pos<2,3>::n4]*Xm[pos<3,2>::n4] - Xm[pos<1,2>::n4]*Xm[pos<2,1>::n4]*Xm[pos<3,3>::n4] + Xm[pos<1,1>::n4]*Xm[pos<2,2>::n4]*Xm[pos<3,3>::n4] ) / det_val;
         outm[pos<1,0>::n4] = ( Xm[pos<1,3>::n4]*Xm[pos<2,2>::n4]*Xm[pos<3,0>::n4] - Xm[pos<1,2>::n4]*Xm[pos<2,3>::n4]*Xm[pos<3,0>::n4] - Xm[pos<1,3>::n4]*Xm[pos<2,0>::n4]*Xm[pos<3,2>::n4] + Xm[pos<1,0>::n4]*Xm[pos<2,3>::n4]*Xm[pos<3,2>::n4] + Xm[pos<1,2>::n4]*Xm[pos<2,0>::n4]*Xm[pos<3,3>::n4] - Xm[pos<1,0>::n4]*Xm[pos<2,2>::n4]*Xm[pos<3,3>::n4] ) / det_val;
@@ -200,7 +315,7 @@ auxlib::inv_noalias_tinymat(Mat<eT>& out, const Mat<eT>& X, const uword N)
         
         const eT check_val = Xm[pos<0,0>::n4]*outm[pos<0,0>::n4] + Xm[pos<0,1>::n4]*outm[pos<1,0>::n4] + Xm[pos<0,2>::n4]*outm[pos<2,0>::n4] + Xm[pos<0,3>::n4]*outm[pos<3,0>::n4];
         
-        const  T max_diff  = (is_float<T>::value) ? T(1e-4) : T(1e-10);  // empirically determined; may need tuning
+        const  T max_diff  = (is_float<T>::value || is_fp<T>::value) ? T(1e-4) : T(1e-10);  // empirically determined; may need tuning
         
         if(std::abs(T(1) - check_val) < max_diff)
           {
@@ -3045,6 +3160,43 @@ auxlib::solve_square_fast(Mat<typename T1::elem_type>& out, Mat<typename T1::ele
   
   const uword A_n_rows = A.n_rows;
   
+
+  if(is_fp<eT>::value || is_complex_fp<eT>::value){
+      Mat<eT> A_inv(A);
+      (void)auxlib::inverse_inplace(A_inv);
+
+      const unwrap<T1>   U(B_expr.get_ref());
+      const Mat<eT>& B = U.M;
+
+      const uword B_n_rows = B.n_rows;
+      const uword B_n_cols = B.n_cols;
+
+      arma_debug_check( (A_n_rows != B_n_rows), "solve(): number of rows in the given matrices must be the same" );
+
+      if(A.is_empty() || B.is_empty())
+        {
+        out.zeros(A.n_cols, B_n_cols);
+        return true;
+        }
+
+      if(&out != &B)
+        {
+        out.set_size(A_n_rows, B_n_cols);
+
+        gemm_emul<false,false,false,false>::apply(out, A_inv, B);
+        }
+      else
+        {
+        Mat<eT> tmp(A_n_rows, B_n_cols);
+
+        gemm_emul<false,false,false,false>::apply(tmp, A_inv, B);
+
+        out.steal_mem(tmp);
+        }
+
+      return true;
+  }
+
   if(A_n_rows <= 4)
     {
     Mat<eT> A_inv(A_n_rows, A_n_rows);

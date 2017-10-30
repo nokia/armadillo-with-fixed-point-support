@@ -36,12 +36,30 @@ class auxlib
   //
   // inv
   
+  template<typename eT>
+  inline static Mat<eT> schurInv(const Mat<eT>& in, const Mat<eT>& invA, uword size, bool &status);
+
+  template<typename eT>
+  inline static bool inverse_inplace(Mat<eT> &in);
+
   template<typename eT, typename T1>
   inline static bool inv(Mat<eT>& out, const Base<eT,T1>& X);
   
   template<typename eT>
   inline static bool inv(Mat<eT>& out, const Mat<eT>& A);
   
+  template <typename eT>
+  inline static bool inv_check_det_val(eT det, const eT det_min);
+
+  template <typename eT >
+  inline static bool inv_check_det_val(std::complex<eT> det, const eT det_min);
+
+  template <typename eT >
+  inline static bool is_null(eT val);
+
+  template <typename eT >
+  inline static bool is_null(std::complex<eT> val);
+
   template<typename eT>
   inline static bool inv_noalias_tinymat(Mat<eT>& out, const Mat<eT>& X, const uword N);
   
