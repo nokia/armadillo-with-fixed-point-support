@@ -80,6 +80,31 @@ typedef Col <double> colvec;
 typedef Row <double> rowvec;
 typedef Cube<double> cube;
 
+template<typename BT, u16 P>
+struct fp_mat{
+    typedef Mat <FP<BT, P> > type;
+};
+
+template<typename BT, u16 P>
+struct fp_vec{
+    typedef Col <FP<BT, P> > type;
+};
+
+template<typename BT, u16 P>
+struct fp_colvec{
+    typedef Col <FP<BT, P> > type;
+};
+
+template<typename BT, u16 P>
+struct fp_rowvec{
+    typedef Row <FP<BT, P> > type;
+};
+
+template<typename BT, u16 P>
+struct fp_cube{
+    typedef Cube <FP<BT, P> > type;
+};
+
 typedef Mat <cx_float> cx_fmat;
 typedef Col <cx_float> cx_fvec;
 typedef Col <cx_float> cx_fcolvec;
@@ -98,6 +123,32 @@ typedef Col <cx_double> cx_colvec;
 typedef Row <cx_double> cx_rowvec;
 typedef Cube<cx_double> cx_cube;
 
+template<typename BT, u16 P>
+struct cx_fpmat {
+    typedef Mat <std::complex<FP<BT, P> > > type;
+};
+
+template<typename BT, u16 P>
+struct cx_fpvec {
+    typedef Col <std::complex<FP<BT, P> > > type;
+};
+
+template<typename BT, u16 P>
+struct cx_fpcolvec {
+    typedef Col <std::complex<FP<BT, P> > > type;
+};
+
+
+template<typename BT, u16 P>
+struct cx_fprowvec {
+    typedef Row <std::complex<FP<BT, P> > > type;
+};
+
+
+template<typename BT, u16 P>
+struct cx_fpcube {
+    typedef Cube <std::complex<FP<BT, P> > > type;
+};
 
 
 typedef SpMat <uword> sp_umat;
@@ -125,6 +176,26 @@ typedef SpCol <double> sp_vec;
 typedef SpCol <double> sp_colvec;
 typedef SpRow <double> sp_rowvec;
 
+template<typename BT, u16 P>
+struct sp_fpmat{
+    typedef SpMat <FP<BT, P> > type;
+};
+
+template<typename BT, u16 P>
+struct sp_fpvec{
+    typedef SpCol <FP<BT, P> > type;
+};
+
+template<typename BT, u16 P>
+struct sp_fpcolvec{
+    typedef SpCol <FP<BT, P> > type;
+};
+
+template<typename BT, u16 P>
+struct sp_fprowvec{
+    typedef SpRow <FP<BT, P> > type;
+};
+
 typedef SpMat <cx_float> sp_cx_fmat;
 typedef SpCol <cx_float> sp_cx_fvec;
 typedef SpCol <cx_float> sp_cx_fcolvec;
@@ -140,6 +211,25 @@ typedef SpCol <cx_double> sp_cx_vec;
 typedef SpCol <cx_double> sp_cx_colvec;
 typedef SpRow <cx_double> sp_cx_rowvec;
 
+template<typename BT, u16 P>
+struct sp_cx_fpmat {
+    typedef SpMat <std::complex<FP<BT, P> > > type;
+};
+
+template<typename BT, u16 P>
+struct sp_cx_fpvec {
+    typedef SpCol <std::complex<FP<BT, P> > > type;
+};
+
+template<typename BT, u16 P>
+struct sp_cx_fpcolvec {
+    typedef SpCol <std::complex<FP<BT, P> > > type;
+};
+
+template<typename BT, u16 P>
+struct sp_cx_fprowvec {
+    typedef SpRow <std::complex<FP<BT, P> > > type;
+};
 
 // internal use only; subject to change and/or removal without notice
 typedef MapMat <uword>     map_umat;
