@@ -483,6 +483,21 @@ class herk
     herk<do_trans_A, use_alpha, use_beta>::apply_blas_type(C,A,alpha,beta);
     }
   
+  template<typename TA, typename BT, u16 P>
+  arma_inline
+  static
+  void
+  apply
+    (
+          Mat< std::complex<FP<BT, P> > >& C,
+    const TA&                          A,
+    const FP<BT, P>                       alpha = FP<BT, P>(1),
+    const FP<BT, P>                       beta  = FP<BT, P>(0)
+    )
+    {
+    herk<do_trans_A, use_alpha, use_beta>::apply_blas_type(C,A,alpha,beta);
+    }
+
   };
 
 
