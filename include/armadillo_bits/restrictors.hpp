@@ -36,6 +36,10 @@ template<> struct arma_scalar_only<s32>    { typedef s32    result; };
 template<> struct arma_scalar_only<u64>    { typedef u64    result; };
 template<> struct arma_scalar_only<s64>    { typedef s64    result; };
 #endif
+#if defined(ARMA_USE_U128S128)
+template<> struct arma_scalar_only<u128>   { typedef u128    result; };
+template<> struct arma_scalar_only<s128>   { typedef s128    result; };
+#endif
 template<> struct arma_scalar_only<float>  { typedef float  result; };
 template<> struct arma_scalar_only<double> { typedef double result; };
 #if defined(ARMA_ALLOW_LONG)
@@ -43,6 +47,8 @@ template<> struct arma_scalar_only<ulng_t> { typedef ulng_t result; };
 template<> struct arma_scalar_only<slng_t> { typedef slng_t result; };
 #endif
 
+template<typename BT, u16 P>
+           struct arma_scalar_only<FP<BT, P> > { typedef FP<BT, P>  result; };
 template<typename T>
 struct arma_scalar_only< std::complex<T> > { typedef std::complex<T> result; };
 
@@ -60,6 +66,10 @@ template<> struct arma_integral_only<s32> { typedef s32 result; };
 template<> struct arma_integral_only<u64> { typedef u64 result; };
 template<> struct arma_integral_only<s64> { typedef s64 result; };
 #endif
+#if defined(ARMA_USE_U128S128)
+template<> struct arma_integral_only<u128> { typedef u128 result; };
+template<> struct arma_integral_only<s128> { typedef s128 result; };
+#endif
 #if defined(ARMA_ALLOW_LONG)
 template<> struct arma_integral_only<ulng_t> { typedef ulng_t result; };
 template<> struct arma_integral_only<slng_t> { typedef slng_t result; };
@@ -75,6 +85,9 @@ template<> struct arma_unsigned_integral_only<u32>    { typedef u32    result; }
 #if defined(ARMA_USE_U64S64)
 template<> struct arma_unsigned_integral_only<u64>    { typedef u64    result; };
 #endif
+#if defined(ARMA_USE_U128S128)
+template<> struct arma_unsigned_integral_only<u128>   { typedef u128   result; };
+#endif
 #if defined(ARMA_ALLOW_LONG)
 template<> struct arma_unsigned_integral_only<ulng_t> { typedef ulng_t result; };
 #endif
@@ -88,6 +101,9 @@ template<> struct arma_signed_integral_only<s16>    { typedef s16    result; };
 template<> struct arma_signed_integral_only<s32>    { typedef s32    result; };
 #if defined(ARMA_USE_U64S64)
 template<> struct arma_signed_integral_only<s64>    { typedef s64    result; };
+#endif
+#if defined(ARMA_USE_U128S128)
+template<> struct arma_signed_integral_only<s128>   { typedef s128   result; };
 #endif
 #if defined(ARMA_ALLOW_LONG)
 template<> struct arma_signed_integral_only<slng_t> { typedef slng_t result; };
@@ -103,10 +119,23 @@ template<> struct arma_signed_only<s32>    { typedef s32    result; };
 #if defined(ARMA_USE_U64S64)
 template<> struct arma_signed_only<s64>    { typedef s64    result; };
 #endif
+#if defined(ARMA_USE_U128S128)
+template<> struct arma_signed_only<s128>   { typedef s128    result; };
+#endif
 template<> struct arma_signed_only<float>  { typedef float  result; };
 template<> struct arma_signed_only<double> { typedef double result; };
 #if defined(ARMA_ALLOW_LONG)
 template<> struct arma_signed_only<slng_t> { typedef slng_t result; };
+#endif
+
+template<u16 P> struct arma_signed_only<FP<s8,  P> >     { typedef FP<s8, P> result; };
+template<u16 P> struct arma_signed_only<FP<s16, P> >     { typedef FP<s16, P> result; };
+template<u16 P> struct arma_signed_only<FP<s32, P> >     { typedef FP<s32, P> result; };
+#if defined(ARMA_USE_U64S64)
+template<u16 P> struct arma_signed_only<FP<s64, P> >     { typedef FP<s64, P> result; };
+#endif
+#if defined(ARMA_USE_U128S128)
+template<u16 P> struct arma_signed_only<FP<s128, P> >    { typedef FP<s128, P> result; };
 #endif
 
 template<typename T> struct arma_signed_only< std::complex<T> > { typedef std::complex<T> result; };
@@ -119,12 +148,22 @@ template<> struct arma_real_only<float>  { typedef float  result; };
 template<> struct arma_real_only<double> { typedef double result; };
 
 
+template<typename BT, u16 P>
+           struct arma_real_only<FP<BT, P> > { typedef FP<BT, P>  result; };
+
 template<typename T> struct arma_real_or_cx_only { };
 
 template<> struct arma_real_or_cx_only< float >                { typedef float                result; };
 template<> struct arma_real_or_cx_only< double >               { typedef double               result; };
+
+template<typename BT, u16 P>
+           struct arma_real_or_cx_only< FP<BT, P> >            { typedef FP<BT, P>            result; };
+
 template<> struct arma_real_or_cx_only< std::complex<float>  > { typedef std::complex<float>  result; };
 template<> struct arma_real_or_cx_only< std::complex<double> > { typedef std::complex<double> result; };
+
+template<typename BT, u16 P>
+           struct arma_real_or_cx_only< std::complex<FP<BT, P> > > { typedef std::complex<FP<BT, P> > result; };
 
 
 
@@ -133,6 +172,8 @@ template<typename T> struct arma_cx_only { };
 template<> struct arma_cx_only< std::complex<float>  > { typedef std::complex<float>  result; };
 template<> struct arma_cx_only< std::complex<double> > { typedef std::complex<double> result; };
 
+template<typename BT, u16 P>
+           struct arma_cx_only< std::complex<FP<BT, P> > > { typedef std::complex<FP<BT, P> > result; };
 
 
 template<typename T> struct arma_not_cx                    { typedef T result; };
@@ -147,6 +188,10 @@ template<> struct arma_blas_type_only< double               > { typedef double  
 template<> struct arma_blas_type_only< std::complex<float>  > { typedef std::complex<float>  result; };
 template<> struct arma_blas_type_only< std::complex<double> > { typedef std::complex<double> result; };
 
+template<typename BT, u16 P>
+           struct arma_blas_type_only< FP<BT, P>            > { typedef FP<BT, P>            result; };
+template<typename BT, u16 P>
+           struct arma_blas_type_only< std::complex<FP<BT, P> > > { typedef std::complex<FP<BT, P> > result; };
 
 
 template<typename T> struct arma_not_blas_type { typedef T result; };
@@ -156,6 +201,8 @@ template<> struct arma_not_blas_type< double               > {  };
 template<> struct arma_not_blas_type< std::complex<float>  > {  };
 template<> struct arma_not_blas_type< std::complex<double> > {  };
 
+template<typename BT, u16 P>
+           struct arma_not_blas_type< FP<BT, P>            > {  };
 
 
 template<typename T> struct arma_op_rel_only { };
