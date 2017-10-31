@@ -809,6 +809,72 @@ Mat<eT>::operator=(const Mat<eT>& in_mat)
   }
 
 
+//! construct matrix from a given matrix different type
+template<typename out_eT>
+template<typename in_eT>
+inline
+Mat<out_eT>::Mat(const Mat<in_eT>& in_mat)
+  : n_rows(in_mat.n_rows)
+  , n_cols(in_mat.n_cols)
+  , n_elem(in_mat.n_elem)
+  , vec_state(0)
+  , mem_state(0)
+  , mem()
+  {
+  arma_extra_debug_sigprint(arma_str::format("this = %x   in_mat = %x") % this % &in_mat);
+
+  init_cold();
+
+  arrayops::Copy( memptr(), in_mat.mem, in_mat.n_elem );
+  }
+
+template<typename out_eT>
+template<typename in_eT>
+inline
+const Mat<out_eT>&
+Mat<out_eT>::operator=(const Mat<in_eT>& in_mat)
+  {
+  arma_extra_debug_sigprint(arma_str::format("this = %x   in_mat = %x") % this % &in_mat);
+
+  if((Mat<in_eT>*)this != &in_mat)
+    {
+    init_warm(in_mat.n_rows, in_mat.n_cols);
+
+    arrayops::Copy( memptr(), in_mat.mem, in_mat.n_elem );
+    }
+
+  return *this;
+  }
+
+template<typename eT>
+template<typename in_eT, typename T1, typename T2>
+inline
+Mat<eT>::Mat(const subview_elem2<in_eT,T1,T2>& X)
+  : n_rows(0)
+  , n_cols(0)
+  , n_elem(0)
+  , vec_state(0)
+  , mem_state(0)
+  , mem()
+  {
+
+  arma_extra_debug_sigprint_this(this);
+
+  this->operator=(X);
+  }
+
+template<typename eT>
+template<typename in_eT, typename T1, typename T2>
+inline
+const Mat<eT>&
+Mat<eT>::operator=(const subview_elem2<in_eT,T1,T2>& X)
+  {
+  arma_extra_debug_sigprint();
+
+  subview_elem2<eT,T1,T2>::extract(*this, X);
+
+  return *this;
+  }
 
 #if defined(ARMA_USE_CXX11)
   
@@ -1203,6 +1269,44 @@ Mat<eT>::steal_mem_col(Mat<eT>& x, const uword max_n_rows)
 //! if copy_aux_mem is true, new memory is allocated and the array is copied.
 //! if copy_aux_mem is false, the auxiliary array is used directly (without allocating memory and copying).
 //! the default is to copy the array.
+
+template<typename out_eT>
+template<typename in_eT>
+inline
+Mat<out_eT>::Mat(in_eT* aux_mem, const uword aux_n_rows, const uword aux_n_cols)
+  : n_rows   ( aux_n_rows                            )
+  , n_cols   ( aux_n_cols                            )
+  , n_elem   ( aux_n_rows*aux_n_cols                 )
+  , vec_state( 0                                     )
+  , mem_state(0)
+  , mem      (0)
+
+  {
+    arma_extra_debug_sigprint_this(this);
+    init_cold();
+    arrayops::Copy(memptr(), aux_mem, n_elem );
+  }
+
+template<typename out_eT>
+template<typename in_eT>
+inline
+Mat<out_eT>::Mat(in_eT* aux_mem, const uword aux_n_rows, const uword aux_n_cols, const bool copy_aux_mem, const bool strict)
+  : n_rows   ( aux_n_rows                            )
+  , n_cols   ( aux_n_cols                            )
+  , n_elem   ( aux_n_rows*aux_n_cols                 )
+  , vec_state( 0                                     )
+  , mem_state( copy_aux_mem ? 0 : ( strict ? 2 : 1 ) )
+  , mem      ( copy_aux_mem ? 0 : (out_eT*)aux_mem            )
+  {
+  arma_extra_debug_sigprint_this(this);
+
+  if(copy_aux_mem == true)
+    {
+    init_cold();
+
+    arrayops::copy( memptr(), (out_eT*)aux_mem, n_elem );
+    }
+  }
 
 template<typename eT>
 inline

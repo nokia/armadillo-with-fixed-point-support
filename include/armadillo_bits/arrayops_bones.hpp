@@ -22,6 +22,18 @@ class arrayops
   {
   public:
   
+  template<typename out_eT, typename in_eT>
+  arma_hot arma_inline static void
+  Copy(out_eT* dest, const in_eT* src, const uword n_elem);
+
+  template<typename out_eT, typename in_eT>
+  arma_hot arma_inline static void
+  Copy(out_eT* dest, const std::complex<in_eT> * src, const uword n_elem);
+
+  template<typename out_eT, typename in_eT>
+  arma_hot arma_inline static void
+  Copy(std::complex<out_eT>* dest, const std::complex<in_eT> * src, const uword n_elem);
+
   template<typename eT>
   arma_hot arma_inline static void
   copy(eT* dest, const eT* src, const uword n_elem);

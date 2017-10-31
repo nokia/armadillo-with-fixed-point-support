@@ -81,6 +81,9 @@ class subview_elem2 : public Base<eT, subview_elem2<eT,T1,T2> >
   template<typename expr> inline void operator/= (const Base<eT,expr>& x);
   
   inline static void extract(Mat<eT>& out, const subview_elem2& in);
+
+  template<typename in_eT>
+  inline static void extract(Mat<eT>& out, const subview_elem2<in_eT,T1,T2>& in);
   
   inline static void  plus_inplace(Mat<eT>& out, const subview_elem2& in);
   inline static void minus_inplace(Mat<eT>& out, const subview_elem2& in);

@@ -18,6 +18,35 @@
 //! @{
 
 
+template<typename out_eT, typename in_eT>
+arma_hot
+arma_inline
+void
+arrayops::Copy(out_eT* dest, const in_eT* src, const uword n_elem)
+  {
+      arrayops::convert(dest, src, n_elem);
+  }
+
+
+template<typename out_eT, typename in_eT>
+arma_hot
+arma_inline
+void
+arrayops::Copy(out_eT* dest, const std::complex<in_eT> * src, const uword n_elem)
+  {
+      arrayops::convert_cx(dest, src, n_elem);
+  }
+
+
+template<typename out_eT, typename in_eT>
+arma_hot
+arma_inline
+void
+arrayops::Copy(std::complex<out_eT>* dest, const std::complex<in_eT> * src, const uword n_elem)
+  {
+      arrayops::convert_cx(dest, src, n_elem);
+  }
+
 
 template<typename eT>
 arma_hot
@@ -212,9 +241,7 @@ arrayops::convert_cx_scalar
   const std::complex< in_T>& in
   )
   {
-  typedef std::complex<out_T> out_eT;
-  
-  out = out_eT(in);
+    out = std::complex<out_T>(out_T(in.real()), out_T(in.imag()));
   }
 
 

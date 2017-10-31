@@ -551,7 +551,139 @@ subview_elem2<eT,T1,T2>::operator/= (const Base<eT,expr>& x)
 //
 //
 
+template<typename eT, typename T1, typename T2>
+template<typename in_eT>
+inline
+void
+subview_elem2<eT,T1,T2>::extract(Mat<eT>& _actual_out, const subview_elem2<in_eT,T1,T2>& in)
+{
 
+  Mat<in_eT> actual_out;
+
+  arma_extra_debug_sigprint();
+
+  Mat<in_eT>& m_local = const_cast< Mat<in_eT>& >(in.m);
+
+  const uword m_n_rows = m_local.n_rows;
+  const uword m_n_cols = m_local.n_cols;
+
+  const bool alias = (&actual_out == &m_local);
+
+  if(alias)  { arma_extra_debug_print("subview_elem2::extract(): aliasing detected"); }
+
+  Mat<in_eT>* tmp_out = alias ? new Mat<in_eT>() : 0;
+  Mat<in_eT>& out     = alias ? *tmp_out      : actual_out;
+
+  if( (in.all_rows == false) && (in.all_cols == false) )
+    {
+    const unwrap_check_mixed<T1> tmp1(in.base_ri.get_ref(), actual_out);
+    const unwrap_check_mixed<T2> tmp2(in.base_ci.get_ref(), actual_out);
+
+    const umat& ri = tmp1.M;
+    const umat& ci = tmp2.M;
+
+    arma_debug_check
+      (
+      ( ((ri.is_vec() == false) && (ri.is_empty() == false)) || ((ci.is_vec() == false) && (ci.is_empty() == false)) ),
+      "Mat::elem(): given object is not a vector"
+      );
+
+    const uword* ri_mem    = ri.memptr();
+    const uword  ri_n_elem = ri.n_elem;
+    const uword* ci_mem    = ci.memptr();
+    const uword  ci_n_elem = ci.n_elem;
+
+    out.set_size(ri_n_elem, ci_n_elem);
+
+    in_eT*   out_mem   = out.memptr();
+    uword out_count = 0;
+
+    for(uword ci_count=0; ci_count < ci_n_elem; ++ci_count)
+      {
+      const uword col = ci_mem[ci_count];
+
+      arma_debug_check( (col >= m_n_cols), "Mat::elem(): index out of bounds" );
+
+      for(uword ri_count=0; ri_count < ri_n_elem; ++ri_count)
+        {
+        const uword row = ri_mem[ri_count];
+
+        arma_debug_check( (row >= m_n_rows), "Mat::elem(): index out of bounds" );
+
+        out_mem[out_count] = m_local.at(row,col);
+        ++out_count;
+        }
+      }
+    }
+  else
+  if( (in.all_rows == true) && (in.all_cols == false) )
+    {
+    const unwrap_check_mixed<T2> tmp2(in.base_ci.get_ref(), m_local);
+
+    const umat& ci = tmp2.M;
+
+    arma_debug_check
+      (
+      ( (ci.is_vec() == false) && (ci.is_empty() == false) ),
+      "Mat::elem(): given object is not a vector"
+      );
+
+    const uword* ci_mem    = ci.memptr();
+    const uword  ci_n_elem = ci.n_elem;
+
+    out.set_size(m_n_rows, ci_n_elem);
+
+    for(uword ci_count=0; ci_count < ci_n_elem; ++ci_count)
+      {
+      const uword col = ci_mem[ci_count];
+
+      arma_debug_check( (col >= m_n_cols), "Mat::elem(): index out of bounds" );
+
+      arrayops::copy( out.colptr(ci_count), m_local.colptr(col), m_n_rows );
+      }
+    }
+  else
+  if( (in.all_rows == false) && (in.all_cols == true) )
+    {
+    const unwrap_check_mixed<T1> tmp1(in.base_ri.get_ref(), m_local);
+
+    const umat& ri = tmp1.M;
+
+    arma_debug_check
+      (
+      ( (ri.is_vec() == false) && (ri.is_empty() == false) ),
+      "Mat::elem(): given object is not a vector"
+      );
+
+    const uword* ri_mem    = ri.memptr();
+    const uword  ri_n_elem = ri.n_elem;
+
+    out.set_size(ri_n_elem, m_n_cols);
+
+    for(uword col=0; col < m_n_cols; ++col)
+      {
+      for(uword ri_count=0; ri_count < ri_n_elem; ++ri_count)
+        {
+        const uword row = ri_mem[ri_count];
+
+        arma_debug_check( (row >= m_n_rows), "Mat::elem(): index out of bounds" );
+
+        out.at(ri_count,col) = m_local.at(row,col);
+        }
+      }
+    }
+
+
+  if(alias)
+    {
+    actual_out.steal_mem(out);
+
+    delete tmp_out;
+    }
+
+_actual_out = static_cast<Mat<eT> >(actual_out);
+
+}
 
 template<typename eT, typename T1, typename T2>
 inline

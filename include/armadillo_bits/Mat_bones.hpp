@@ -84,7 +84,26 @@ class Mat : public Base< eT, Mat<eT> >
   
   inline Mat(      eT* aux_mem, const uword aux_n_rows, const uword aux_n_cols, const bool copy_aux_mem = true, const bool strict = false);
   inline Mat(const eT* aux_mem, const uword aux_n_rows, const uword aux_n_cols);
-  
+
+  //!Construct matrix from different type
+  template<typename in_eT>
+  inline Mat(      in_eT* aux_mem, const uword aux_n_rows, const uword aux_n_cols);
+
+  template<typename in_eT>
+  inline Mat(      in_eT* aux_mem, const uword aux_n_rows, const uword aux_n_cols, const bool copy_aux_mem, const bool strict);
+
+  template<typename in_eT>
+  inline Mat(const Mat<in_eT>& in_mat);
+
+  template<typename in_eT>
+  inline const Mat& operator=(const Mat<in_eT>& in_mat);
+
+  template<typename in_eT, typename T1, typename T2>
+  inline Mat(const subview_elem2<in_eT,T1,T2>& X);
+
+  template<typename in_eT, typename T1, typename T2>
+  inline const Mat& operator= (const subview_elem2<in_eT,T1,T2>& X);
+
   inline Mat&  operator=(const eT val);
   inline Mat& operator+=(const eT val);
   inline Mat& operator-=(const eT val);
