@@ -404,7 +404,18 @@ Col<eT>::operator=(const SpBase<eT,T1>& X)
 
 
 
-//! construct a column vector from a given auxiliary array of eTs
+//! construct a column vector from a given auxiliary array of in_eTs <> out_eT
+template<typename out_eT>
+template<typename in_eT>
+inline
+Col<out_eT>::Col(const in_eT* aux_mem, const uword aux_length)
+  : Mat<out_eT>(aux_mem, aux_length, 1)
+  {
+  arma_extra_debug_sigprint();
+
+  access::rw(Mat<out_eT>::vec_state) = 1;
+  }
+
 template<typename eT>
 inline
 Col<eT>::Col(eT* aux_mem, const uword aux_length, const bool copy_aux_mem, const bool strict)

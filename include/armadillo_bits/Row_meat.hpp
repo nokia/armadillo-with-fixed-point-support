@@ -403,6 +403,18 @@ Row<eT>::operator=(const SpBase<eT,T1>& X)
   }
 
 
+//! construct a row vector from a given auxiliary array different type
+template<typename out_eT>
+template<typename in_eT>
+inline
+Row<out_eT>::Row(const in_eT* aux_mem, const uword aux_length)
+  : Mat<out_eT>(aux_mem, 1, aux_length)
+  {
+  arma_extra_debug_sigprint();
+
+  access::rw(Mat<out_eT>::vec_state) = 2;
+  }
+
 
 //! construct a row vector from a given auxiliary array
 template<typename eT>
