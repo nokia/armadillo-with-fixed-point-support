@@ -91,7 +91,7 @@
       #endif
 
       #if defined(ARMA_64BIT_WORD_FIXED_POINT)
-        #undef ARMA_64BIT_WORD_FIXED_POIN
+        #undef ARMA_64BIT_WORD_FIXED_POINT
       #endif
 
     #endif
