@@ -467,4 +467,13 @@ inline FP<BT, P> operator*(const FP<BT, PP>& lhs, const FP<BT, P>&fp){
     return res*= fp;
 };
 
+template<typename BT, u16 P>
+std::istream& operator>>(std::istream& is, FP<BT, P>&fp)
+{
+    double val;
+    is >> val;
+    fp = FP<BT, P>(val);
+    return is;
+}
+
 //! @}
