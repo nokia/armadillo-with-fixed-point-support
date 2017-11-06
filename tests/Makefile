@@ -1,9 +1,9 @@
 
 LIB_FLAGS = -larmadillo
-#LIB_FLAGS = -lblas -llapack 
+LIB_FLAGS += -lblas -llapack 
 #LIB_FLAGS = -lopenblas -llapack 
 
-CXX_FLAGS = -std=c++11 -Wshadow -Wall -pedantic -O0
+CXX_FLAGS = -std=c++11 -Wshadow -Wall -pedantic -O0 -DARMA_USE_U128S128 -DARMA_USE_U64S64 -I../include/
 #CXX_FLAGS = -std=c++11 -Wshadow -Wall -pedantic -O0 -fopenmp
 #CXX_FLAGS = -std=c++11 -Wshadow -Wall -pedantic -O0 -DARMA_DONT_USE_WRAPPER
 #CXX_FLAGS = -std=c++11 -Wshadow -Wall -pedantic -O2
