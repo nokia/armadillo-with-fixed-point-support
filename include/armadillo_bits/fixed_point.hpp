@@ -419,7 +419,7 @@ template<typename BT, typename LHSTYPE, u16 P>
 inline const FP<BT, P> operator*(LHSTYPE const& lhs, const FP<BT, P>&fp){
     FP<BT, P> res(fp);
     return res*= FP<BT, P>(lhs);
-};
+}
 
 /** Specialization for multiplication of complex numbers.
  *  Avoid ambiguity with * operator in std::complex. 
@@ -428,7 +428,7 @@ template<typename BT, u16 P>
 inline const std::complex<FP<BT, P> > operator*(std::complex<FP<BT, P> > const& lhs, const FP<BT, P>&fp){
     std::complex<FP<BT, P> > res(fp);
     return res *= lhs;
-};
+}
 
 /** Left hand side multiplication specialization for U64S64 */
 #if (defined(ARMA_USE_U64S64) || defined(ARMA_USE_U64S64_FIXED_POINT))
@@ -436,13 +436,13 @@ template<typename BT, u16 P>
 inline const FP<BT, P> operator*(s64 const& lhs, const FP<BT, P>&fp){
     FP<BT, P> res(fp);
     return res*= FP<BT, P>(lhs);
-};
+}
 
 template<typename BT, u16 P>
 inline const FP<BT, P> operator*(u64 const& lhs, const FP<BT, P>&fp){
     FP<BT, P> res(fp);
     return res*= FP<BT, P>(lhs);
-};
+}
 #endif
 
 /** Left hand side multiplication specialization for U128S128 */
@@ -451,13 +451,13 @@ template<typename BT, u16 P>
 inline const FP<BT, P> operator*(s128 const& lhs, const FP<BT, P>&fp){
     FP<BT, P> res(fp);
     return res*= FP<BT, P>(lhs);
-};
+}
 
 template<typename BT, u16 P>
 inline const FP<BT, P> operator*(u128 const& lhs, const FP<BT, P>&fp){
     FP<BT, P> res(fp);
     return res*= FP<BT, P>(lhs);
-};
+}
 #endif
 
 /** Left hand side multiplication with other fixed point using different precision */
@@ -465,7 +465,7 @@ template<typename BT, u16 P, u16 PP>
 inline FP<BT, P> operator*(const FP<BT, PP>& lhs, const FP<BT, P>&fp){
     FP<BT, P> res(lhs);
     return res*= fp;
-};
+}
 
 template<typename BT, u16 P>
 std::istream& operator>>(std::istream& is, FP<BT, P>&fp)
