@@ -106,7 +106,7 @@
 #endif
 
 #if !defined(ARMA_USE_FIXED_POINT)
-   //#define ARMA_USE_FIXED_POINT
+   #define ARMA_USE_FIXED_POINT
  //// Uncomment the above line if you want to enable using fixed point
 #endif
 
