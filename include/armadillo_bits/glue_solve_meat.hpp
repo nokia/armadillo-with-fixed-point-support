@@ -64,7 +64,6 @@ glue_solve_gen::apply(Mat<eT>& out, const Base<eT,T1>& A_expr, const Base<eT,T2>
   if(equilibrate)  { arma_extra_debug_print("equilibrate"); }
   if(no_approx  )  { arma_extra_debug_print("no_approx");   }
   
-  
   T    rcond  = T(0);
   bool status = false;
   
