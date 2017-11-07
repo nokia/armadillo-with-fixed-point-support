@@ -240,6 +240,9 @@ class auxlib
   template<typename T1>
   inline static bool solve_tri(Mat<typename T1::elem_type>& out, const Mat<typename T1::elem_type>& A, const Base<typename T1::elem_type,T1>& B_expr, const uword layout);
   
+  template<typename T1>
+  inline static bool solve_band_fast(Mat<typename T1::elem_type>& out, Mat<typename T1::elem_type>& AB, const uword KL, const uword KU, const Base<typename T1::elem_type,T1>& B_expr);
+  
   
   //
   // Schur decomposition

@@ -44,6 +44,18 @@ class glue_solve_tri
 
 
 
+class glue_solve_band
+  {
+  public:
+
+  template<typename eT, typename T1, typename T2> inline static bool apply(Mat<eT>& out, const Base<eT,T1>& A_expr, const Base<eT,T2>& B_expr, const uword flags);
+  
+  template<typename eT> inline static void get_band_representation(Mat<eT>& AB, uword& out_KL, uword& out_KU, const Mat<eT>& A, const bool use_offset);
+  };
+
+
+
+
 namespace solve_opts
   {
   struct opts
@@ -78,6 +90,7 @@ namespace solve_opts
   static const uword flag_no_approx   = uword(1u << 2);
   static const uword flag_triu        = uword(1u << 3);
   static const uword flag_tril        = uword(1u << 4);
+  static const uword flag_band        = uword(1u << 5);
   
   struct opts_none        : public opts { inline opts_none()        : opts(flag_none       ) {} };
   struct opts_fast        : public opts { inline opts_fast()        : opts(flag_fast       ) {} };
@@ -85,6 +98,7 @@ namespace solve_opts
   struct opts_no_approx   : public opts { inline opts_no_approx()   : opts(flag_no_approx  ) {} };
   struct opts_triu        : public opts { inline opts_triu()        : opts(flag_triu       ) {} };
   struct opts_tril        : public opts { inline opts_tril()        : opts(flag_tril       ) {} };
+  struct opts_band        : public opts { inline opts_band()        : opts(flag_band       ) {} };
   
   static const opts_none        none;
   static const opts_fast        fast;
@@ -92,6 +106,7 @@ namespace solve_opts
   static const opts_no_approx   no_approx;
   static const opts_triu        triu;
   static const opts_tril        tril;
+  static const opts_band        band;
   }
 
 

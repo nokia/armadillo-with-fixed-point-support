@@ -612,6 +612,7 @@ extern "C"
       }
     
     
+    // TODO: arma_?gbsv and arma_?gbsvx
     
     
     void arma_fortran_prefix(arma_sgees)(char* jobvs, char* sort, void* select, blas_int* n, float*  a, blas_int* lda, blas_int* sdim, float*  wr, float*  wi, float*  vs, blas_int* ldvs, float*  work, blas_int* lwork, blas_int* bwork, blas_int* info)

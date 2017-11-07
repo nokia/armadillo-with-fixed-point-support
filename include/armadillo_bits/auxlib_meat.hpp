@@ -3697,6 +3697,67 @@ auxlib::solve_tri(Mat<typename T1::elem_type>& out, const Mat<typename T1::elem_
 
 
 
+//! solve a system of linear equations via LU decomposition (band matrix)
+template<typename T1>
+inline
+bool
+auxlib::solve_band_fast(Mat<typename T1::elem_type>& out, Mat<typename T1::elem_type>& AB, const uword KL, const uword KU, const Base<typename T1::elem_type,T1>& B_expr)
+  {
+  arma_extra_debug_sigprint();
+  
+  // AB = matrix A in band storage
+  // in rows KL+1 to 2*KL+KU+1; rows 1 to KL of the array need not be set.
+  // NOTE: this requirement is different to ?gbsvx
+  
+  typedef typename T1::elem_type eT;
+  
+  const uword N = AB.n_cols;  // order of the original square matrix A
+  
+  out = B_expr.get_ref();
+  
+  const uword B_n_rows = out.n_rows;
+  const uword B_n_cols = out.n_cols;
+  
+  arma_debug_check( (N != B_n_rows), "solve(): number of rows in the given matrices must be the same" );
+  
+  if(AB.is_empty() || out.is_empty())
+    {
+    out.zeros(N, B_n_cols);  // TODO: check this
+    return true;
+    }
+  
+  #if defined(ARMA_USE_LAPACK)
+    {
+    arma_debug_assert_blas_size(AB);
+    arma_debug_assert_blas_size(out);
+    
+    blas_int n    = blas_int(N);
+    blas_int kl   = blas_int(KL);
+    blas_int ku   = blas_int(KU);
+    blas_int nrhs = blas_int(B_n_cols);
+    blas_int ldab = blas_int(AB.n_rows);  // NOTE: ldab >= 2*kl+ku+1, which is different to the requirements of ?gbsvx
+    blas_int ldb  = blas_int(B_n_rows);
+    blas_int info = blas_int(0);
+    
+    podarray<blas_int> ipiv(N + 2);  // +2 for paranoia
+    
+    // NOTE: AB is overwritten
+    
+    arma_extra_debug_print("lapack::gbsv()");
+    lapack::gbsv<eT>(&n, &kl, &ku, &nrhs, AB.memptr(), &ldab, ipiv.memptr(), out.memptr(), &ldb, &info);
+    
+    return (info == 0);
+    }
+  #else
+    {
+    arma_stop_logic_error("solve(): use of LAPACK must be enabled");
+    return false;
+    }
+  #endif
+  }
+
+
+
 //
 // Schur decomposition
 
