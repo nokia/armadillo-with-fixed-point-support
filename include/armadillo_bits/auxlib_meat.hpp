@@ -3221,6 +3221,7 @@ auxlib::solve_square_refine(Mat<typename T1::pod_type>& out, typename T1::pod_ty
     arma_ignore(out_rcond);
     arma_ignore(A);
     arma_ignore(B_expr);
+    arma_ignore(equilibrate);
     arma_stop_logic_error("solve(): use of LAPACK must be enabled");
     return false;
     }
@@ -3323,6 +3324,7 @@ auxlib::solve_square_refine(Mat< std::complex<typename T1::pod_type> >& out, typ
     arma_ignore(out_rcond);
     arma_ignore(A);
     arma_ignore(B_expr);
+    arma_ignore(equilibrate);
     arma_stop_logic_error("solve(): use of LAPACK must be enabled");
     return false;
     }
@@ -3750,11 +3752,203 @@ auxlib::solve_band_fast(Mat<typename T1::elem_type>& out, Mat<typename T1::elem_
     }
   #else
     {
+    arma_ignore(KL);
+    arma_ignore(KU);
     arma_stop_logic_error("solve(): use of LAPACK must be enabled");
     return false;
     }
   #endif
   }
+
+
+
+// //! solve a system of linear equations via LU decomposition with refinement (real band matrices)
+// template<typename T1>
+// inline
+// bool
+// auxlib::solve_square_refine(Mat<typename T1::pod_type>& out, typename T1::pod_type& out_rcond, Mat<typename T1::pod_type>& AB, const uword KL, const uword KU, const Base<typename T1::pod_type,T1>& B_expr, const bool equilibrate)
+//   {
+//   arma_extra_debug_sigprint();
+//   
+//   #if defined(ARMA_USE_LAPACK)
+//     {
+//     typedef typename T1::pod_type eT;
+//     
+//     const uword N = AB.n_cols;
+//     
+//     Mat<eT> B = B_expr.get_ref();
+//     
+//     arma_debug_check( (N != B.n_rows), "solve(): number of rows in the given matrices must be the same" );
+//       
+//     if(A.is_empty() || B.is_empty())
+//       {
+//       out.zeros(N, B.n_cols);
+//       return true;
+//       }
+//     
+//     arma_debug_assert_blas_size(A,B);
+//     
+//     out.set_size(A.n_rows, B.n_cols);
+//     
+//     char     fact  = (equilibrate) ? 'E' : 'N'; 
+//     char     trans = 'N';
+//     char     equed = char(0);
+//     blas_int n     = blas_int(A.n_rows);
+//     blas_int nrhs  = blas_int(B.n_cols);
+//     blas_int lda   = blas_int(A.n_rows);
+//     blas_int ldaf  = blas_int(A.n_rows);
+//     blas_int ldb   = blas_int(A.n_rows);
+//     blas_int ldx   = blas_int(A.n_rows);
+//     blas_int info  = blas_int(0);
+//     eT       rcond = eT(0);
+//     
+//     Mat<eT> AF(A.n_rows, A.n_rows);
+//     
+//     podarray<blas_int>  IPIV(  A.n_rows);
+//     podarray<eT>           R(  A.n_rows);
+//     podarray<eT>           C(  A.n_rows);
+//     podarray<eT>        FERR(  B.n_cols);
+//     podarray<eT>        BERR(  B.n_cols);
+//     podarray<eT>        WORK(4*A.n_rows);
+//     podarray<blas_int> IWORK(  A.n_rows);
+//     
+//     arma_extra_debug_print("lapack::gbsvx()");
+//     lapack::gbsvx
+//       (
+//       fact, trans, n, kl, ku, nrhs, 
+//       AB.memptr(), &ldab,
+//       afb, ldafb,
+//       ipiv,
+//       equed,
+//       r, c,
+//       b, ldb,
+//       x, ldx,
+//       rcond,
+//       ferr,
+//       berr, 
+//       work, iwork,
+//       info
+//       );
+//     
+//     out_rcond = rcond;
+//     
+//     return (info == 0);
+//     }
+//   #else
+//     {
+//     arma_ignore(out);
+//     arma_ignore(out_rcond);
+//     arma_ignore(AB);
+//     arma_ignore(KL);
+//     arma_ignore(KU);
+//     arma_ignore(B_expr);
+//     arma_stop_logic_error("solve(): use of LAPACK must be enabled");
+//     return false;
+//     }
+//   #endif
+//   }
+
+
+
+// //! solve a system of linear equations via LU decomposition with refinement (complex band matrices)
+// template<typename T1>
+// inline
+// bool
+// auxlib::solve_band_refine(Mat< std::complex<typename T1::pod_type> >& out, typename T1::pod_type& out_rcond, Mat< std::complex<typename T1::pod_type> >& AB, const uword KL, const uword KU, const Base<std::complex<typename T1::pod_type>,T1>& B_expr, const bool equilibrate)
+//   {
+//   arma_extra_debug_sigprint();
+//   
+//   #if (defined(ARMA_USE_LAPACK) && defined(ARMA_CRIPPLED_LAPACK))
+//     {
+//     arma_ignore(out_rcond);
+//     arma_ignore(equilibrate);
+//     
+//     arma_debug_warn("solve(): refinement and/or equilibration not done due to crippled LAPACK");
+//     
+//     return auxlib::solve_square_fast(out, A, B_expr);
+//     }
+//   #elif defined(ARMA_USE_LAPACK)
+//     {
+//     typedef typename T1::pod_type     T;
+//     typedef typename std::complex<T> eT;
+//     
+//     Mat<eT> B = B_expr.get_ref();  // B is overwritten by lapack::cx_gesvx()
+//     
+//     arma_debug_check( (A.n_rows != B.n_rows), "solve(): number of rows in the given matrices must be the same" );
+//       
+//     if(A.is_empty() || B.is_empty())
+//       {
+//       out.zeros(A.n_rows, B.n_cols);
+//       return true;
+//       }
+//     
+//     arma_debug_assert_blas_size(A,B);
+//     
+//     out.set_size(A.n_rows, B.n_cols);
+//     
+//     char     fact  = (equilibrate) ? 'E' : 'N'; 
+//     char     trans = 'N';
+//     char     equed = char(0);
+//     blas_int n     = blas_int(A.n_rows);
+//     blas_int nrhs  = blas_int(B.n_cols);
+//     blas_int lda   = blas_int(A.n_rows);
+//     blas_int ldaf  = blas_int(A.n_rows);
+//     blas_int ldb   = blas_int(A.n_rows);
+//     blas_int ldx   = blas_int(A.n_rows);
+//     blas_int info  = blas_int(0);
+//     T        rcond = T(0);
+//     
+//     Mat<eT> AF(A.n_rows, A.n_rows);
+//     
+//     podarray<blas_int>  IPIV(  A.n_rows);
+//     podarray< T>           R(  A.n_rows);
+//     podarray< T>           C(  A.n_rows);
+//     podarray< T>        FERR(  B.n_cols);
+//     podarray< T>        BERR(  B.n_cols);
+//     podarray<eT>        WORK(2*A.n_rows);
+//     podarray< T>       RWORK(2*A.n_rows);
+//     
+//     arma_extra_debug_print("lapack::cx_gesvx()");
+//     lapack::cx_gesvx
+//       (
+//       &fact, &trans, &n, &nrhs,
+//       A.memptr(), &lda,
+//       AF.memptr(), &ldaf,
+//       IPIV.memptr(),
+//       &equed,
+//       R.memptr(),
+//       C.memptr(),
+//       B.memptr(), &ldb,
+//       out.memptr(), &ldx,
+//       &rcond,
+//       FERR.memptr(),
+//       BERR.memptr(),
+//       WORK.memptr(),
+//       RWORK.memptr(),
+//       &info
+//       );
+//     
+//     // if(info == (n+1))  { arma_debug_warn("solve(): matrix appears singular to working precision; rcond = ", rcond); }
+//     // 
+//     // const bool singular = ( (info > 0) && (info <= n) );
+//     // 
+//     // return (singular == false);
+//     
+//     out_rcond = rcond;
+//     
+//     return (info == 0);
+//     }
+//   #else
+//     {
+//     arma_ignore(out);
+//     arma_ignore(out_rcond);
+//     arma_ignore(A);
+//     arma_ignore(B_expr);
+//     arma_stop_logic_error("solve(): use of LAPACK must be enabled");
+//     return false;
+//     }
+//   #endif
+//   }
 
 
 
